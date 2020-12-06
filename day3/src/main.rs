@@ -70,5 +70,5 @@ fn main() {
             c == '#'
         })
         .count();
-    println!("part1: {}", tc1 * tc2 * tc3 * tc4 * tc5);
+    println!("part2: {}", tc1 * tc2 * tc3 * tc4 * tc5);
 }
