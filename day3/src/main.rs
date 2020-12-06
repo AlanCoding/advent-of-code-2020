@@ -9,6 +9,16 @@ fn parse_input<'a>(data: &'a str) -> impl Iterator<Item = &'a str> + 'a + Clone 
     data.lines()
 }
 
+fn count_trees<'a>(data: impl Iterator<Item = &'a str>, v: usize, h: usize) -> u64 {
+    data.step_by(v)
+        .enumerate()
+        .filter(|(i, l)| {
+            let c = l.chars().cycle().nth(i * h).unwrap();
+            c == '#'
+        })
+        .count() as u64
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = if args.len() >= 2 {
@@ -19,56 +29,13 @@ fn main() {
     let input = load_input(&filename);
     let data = parse_input(&input);
 
-    let tree_count = data
-        .clone()
-        .enumerate()
-        .filter(|(i, l)| {
-            let c = l.chars().cycle().nth(i * 3).unwrap();
-            c == '#'
-        })
-        .count();
+    let tree_count = count_trees(data.clone(), 1, 3);
     println!("part1: {}", tree_count);
 
-    let tc1 = data
-        .clone()
-        .enumerate()
-        .filter(|(i, l)| {
-            let c = l.chars().cycle().nth(*i).unwrap();
-            c == '#'
-        })
-        .count();
-    let tc2 = data
-        .clone()
-        .enumerate()
-        .filter(|(i, l)| {
-            let c = l.chars().cycle().nth(i * 3).unwrap();
-            c == '#'
-        })
-        .count();
-    let tc3 = data
-        .clone()
-        .enumerate()
-        .filter(|(i, l)| {
-            let c = l.chars().cycle().nth(i * 5).unwrap();
-            c == '#'
-        })
-        .count();
-    let tc4 = data
-        .clone()
-        .enumerate()
-        .filter(|(i, l)| {
-            let c = l.chars().cycle().nth(i * 7).unwrap();
-            c == '#'
-        })
-        .count();
-    let tc5 = data
-        .clone()
-        .step_by(2)
-        .enumerate()
-        .filter(|(i, l)| {
-            let c = l.chars().cycle().nth(*i).unwrap();
-            c == '#'
-        })
-        .count();
+    let tc1 = count_trees(data.clone(), 1, 1);
+    let tc2 = tree_count;
+    let tc3 = count_trees(data.clone(), 1, 5);
+    let tc4 = count_trees(data.clone(), 1, 7);
+    let tc5 = count_trees(data.clone(), 2, 1);
     println!("part2: {}", tc1 * tc2 * tc3 * tc4 * tc5);
 }
