@@ -1,7 +1,9 @@
-use rayon::prelude::*;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::iter;
+
+type Cache = HashMap<u64, u64>;
 
 fn load_input(filename: &str) -> String {
     fs::read_to_string(filename).expect("Reading file failed")
@@ -11,7 +13,14 @@ fn parse_input(data: &str) -> Vec<u64> {
     data.lines().map(|x| x.parse::<u64>().unwrap()).collect()
 }
 
-fn count_paths<'a>(last_element: u64, mut iter: impl Iterator<Item = &'a u64> + Clone) -> u64 {
+fn count_paths<'a>(
+    last_element: u64,
+    mut iter: impl Iterator<Item = &'a u64> + Clone,
+    cache: &mut Cache,
+) -> u64 {
+    if let Some(x) = cache.get(&last_element) {
+        return *x;
+    }
     let mut count = 0;
     let mut diff = 0;
     while diff <= 3 {
@@ -20,12 +29,16 @@ fn count_paths<'a>(last_element: u64, mut iter: impl Iterator<Item = &'a u64> + 
             Some(n) => {
                 diff = n - last_element;
                 if diff <= 3 {
-                    count += count_paths(*n, iter.clone());
+                    count += count_paths(*n, iter.clone(), cache);
                 }
             }
-            None => return 1,
+            None => {
+                cache.insert(last_element, 1);
+                return 1;
+            }
         }
     }
+    cache.insert(last_element, count);
     return count;
 }
 
@@ -52,5 +65,8 @@ fn main() {
     }
     println!("Part 1: {}", one_diff * three_diff);
 
-    println!("Part 2: {}", count_paths(*p_iter.next().unwrap(), p_iter));
+    println!(
+        "Part 2: {}",
+        count_paths(*p_iter.next().unwrap(), p_iter, &mut HashMap::new())
+    );
 }
